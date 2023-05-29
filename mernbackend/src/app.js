@@ -79,7 +79,6 @@ app.post("/login",async(req,res)=>{
         const useremail = await Register.findOne({email:email}); 
 
         if(useremail.password === password){
-            //res.status(201).render("index")  
             
             res.status(201).sendFile(path.join(index_html_path, 'index.html'));
 
