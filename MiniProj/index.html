@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Resource Management</title>
+  <script>
+    var resources = [
+  { name: "Resource 1", status: "billable" },
+  { name: "Resource 2", status: "available" },
+  { name: "Resource 3", status: "assigned", startDate: null, endDate: null, description: null },
+  { name: "Resource 4", status: "billable" },
+  { name: "Resource 5", status: "available" },
+  { name: "Resource 6", status: "available" }
+];
+
+//  if a project start date falls within the next 7 days
+function isWithin7Days(startDate) {
+  var today = new Date();
+  var nextWeek = new Date();
+  nextWeek.setDate(today.getDate() + 7);
+  return startDate >= today && startDate <= nextWeek;
+}
+
+// Check if date is today or not
+function isToday(date) {
+  var today = new Date();
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
+}
+
+function updateResourceLists() {
+  var billableList = "";
+  var availableList = "";
+  var assignedList = "";
+
+  for (var i = 0; i < resources.length; i++) {
+    var resource = resources[i];
+    var listItem = "<li>" + resource.name + "</li>";
+
+    if (resource.status === "billable") {
+      billableList += listItem;
+    } else if (resource.status === "available") {
+      availableList += listItem;
+    } else if (resource.status === "assigned") {
+      if (resource.startDate && resource.endDate && resource.description) {
+        assignedList += "<li>" + resource.name + " - Start Date: " + resource.startDate.toDateString() + ", End Date: " + resource.endDate.toDateString() + ", Description: " + resource.description + "</li>";
+      } else {
+        assignedList += listItem;
+      }
+    }
+  }
+
+  document.getElementById("billable-resources").innerHTML = billableList;
+  document.getElementById("available-resources").innerHTML = availableList;
+  document.getElementById("assigned-resources").innerHTML = assignedList;
+}
+
+// Change the status of a resource
+function changeStatus(newStatus) {
+  var selectedResource = prompt("Enter the name of the resource:");
+  var selectedResourceIndex = -1;
+
+  for (var i = 0; i < resources.length; i++) {
+    if (resources[i].name === selectedResource) {
+      selectedResourceIndex = i;
+      break;
+    }
+  }
+
+  if (selectedResourceIndex !== -1) {
+    var selectedResource = resources[selectedResourceIndex];
+
+    if (newStatus === "assigned" && selectedResource.status === "available") {
+      var selectedProjectStartDate = new Date(prompt("Enter the project start date (YYYY-MM-DD):"));
+
+      if (!isWithin7Days(selectedProjectStartDate)) {
+        alert("The project allocation is allowed only if the project starts within 7 days.");
+        return;
+      }
+
+      var selectedProjectEndDate = new Date(prompt("Enter the project end date (YYYY-MM-DD):"));
+      var selectedProjectDescription = prompt("Enter the project description:");
+
+      selectedResource.startDate = selectedProjectStartDate;
+      selectedResource.endDate = selectedProjectEndDate;
+      selectedResource.description = selectedProjectDescription;
+      selectedResource.status = newStatus;
+
+      updateResourceLists();
+    } else {
+      alert("The resource status can only be changed from Available to Assigned status.");
+    }
+  } else {
+    alert("Resource not found.");
+  }
+}
+
+// Add resource
+function addResource() {
+  var resourceName = document.getElementById("resource-name").value;
+
+  if (resourceName.trim() === "") {
+    alert("Please enter a resource name.");
+    return;
+  }
+
+  var newResource = {
+    name: resourceName,
+    status: "available"
+  };
+
+  resources.push(newResource);
+  updateResourceLists();
+}
+
+window.onload = function() {
+  updateResourceLists();
+};
+
+    
+
+  </script>
+</head>
+<body>
+  <style>
+    nav {
+      background-color: #f2f2f2;
+      padding: 10px;
+      text-align: right;
+    }
+    
+    nav ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    nav ul li {
+      display: inline;
+      margin-right: 10px;
+    }
+    
+    nav ul li a {
+      display: inline-block;
+      padding: 8px;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    
+    nav ul li a:hover {
+      color: #666;
+    }
+    
+    /* CSS styles for the container */
+    .container {
+      margin: 0 auto;
+      max-width: 800px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      text-align: right;
+      color: #333;
+      margin-bottom: 30px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-top: 30px;
+    }
+    
+    .action-menu {
+      text-align: center;
+      margin-top: 20px;
+    }
+    
+    .action-menu button {
+      text-align: center;
+      padding: 10px 20px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .action-menu button:not(:last-child) {
+      margin-right: 10px;
+    }
+    
+    .action-menu button:hover {
+      background-color: #666;
+    }
+
+  </style>
+
+  <h1>Resource Management</h1>
+  <table>
+    <tr>
+      <th>Billable</th>
+      <th>Available</th>
+      <th>Assigned</th>
+    </tr>
+    <tr>
+      <td id="billable-resources"></td>
+      <td id="available-resources"></td>
+      <td id="assigned-resources"></td>
+    </tr>
+  </table>
+
+  <h2>Action Menu</h2>
+  <div class="action-menu">
+    <button onclick="changeStatus('billable')">Change Status to Billable</button>
+    <button onclick="changeStatus('available')">Change Status to Available</button>
+    <button onclick="changeStatus('assigned')">Change Status to Assigned</button>
+    <button onclick="addResource()">Add Resource</button>
+    <input type="text" id="resource-name" placeholder="Enter resource name">
+  </div>
+
+
+      
+</body>
+</html>
